@@ -9,6 +9,9 @@ def main():
     
     if downloaded.lower() == 'y':
         download_mvp_votings()
+    
+    # Scrape MVP Voting Data
+    parse_mvp_votings()
 
 if __name__ == '__main__':
     main()
