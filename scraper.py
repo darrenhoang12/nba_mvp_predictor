@@ -23,7 +23,7 @@ def download_mvp_votings():
 
     Args: None
 
-    Action: Downloads data into "data/mvp_votings/*.html"
+    Action: Downloads data locally
     """
     raw_mvp_save_dir = mvp_save_dir / 'raw'
     if not os.path.exists(raw_mvp_save_dir):
@@ -48,7 +48,7 @@ def parse_mvp_votings():
 
     Args: None
 
-    Actions: Combines MVP table data from 1991 to 2023 and stores it in "data/mvp_votings/mvps.csv"
+    Actions: Combines MVP table data from 1991 to 2023 and stores it
     """
     dfs = []
     for year in years:
@@ -63,6 +63,7 @@ def parse_mvp_votings():
         overheader.extract()
         
         df = pd.read_html(table.prettify())[0]
+        df['year']= year
         dfs.append(df)
         content.close()
     
@@ -74,7 +75,11 @@ def parse_mvp_votings():
     
 def download_player_stats():
     """
+    Downloads individual player stats
 
+    Args: None
+
+    Actions: Downloads HTML data of individual player stats from 1991 to 2023 locally
     """
     # Starting selenium driver with chrome browser
     driver = webdriver.Chrome()
@@ -97,6 +102,11 @@ def download_player_stats():
 
 def parse_player_stats():
     """
+    Parses player stats from locally downloaded html files
+
+    Args: None
+
+    Actions: Combines year to year data from player stats into a dataframe and saves it locally
 
     ## NOTE: The dataframe will not match the number of players in the league due to trades.
     ## Players that are traded will have multiple rows for their stats representing each team they played on.
@@ -112,6 +122,7 @@ def parse_player_stats():
         for extra in extra_headers:
             extra.extract()
         df = pd.read_html(table.prettify())[0]
+        df['year'] = year
         dfs.append(df)
         content.close()
     
@@ -123,6 +134,13 @@ def parse_player_stats():
 
 
 def download_team_records():
+    """
+    Downloads team records locally
+
+    Args: None
+
+    Actions: Downloads year to year team record HTML data locally
+    """
     raw_team_record_save_dir = team_record_save_dir / 'raw'
     if not os.path.exists(raw_team_record_save_dir):
         os.makedirs(raw_team_record_save_dir)
@@ -137,6 +155,36 @@ def download_team_records():
         time.sleep(crawl_delay)
 
 def parse_team_records():
-    pass
+    """
+    Parses team records from locally downloaded html files
 
-download_team_records()
+    Args: None
+
+    Actions: Combines year to year team record data into a single dataframe and saves it locally
+    """
+    dfs = []
+    for year in years:
+        print(f'Parsing team records from {year}')
+        content = open(team_record_save_dir / 'raw' / f'team_records_{year}.html', 'r', encoding='utf-8')
+        soup = BeautifulSoup(content, 'html.parser')
+        for extra in soup.find_all('tr', attrs={'class': 'thead'}):
+            extra.extract()
+
+        eastern_conf_standings_table = soup.find('table', attrs={'id': 'divs_standings_E'})
+        eastern_conf_df = pd.read_html(eastern_conf_standings_table.prettify())[0]
+        eastern_conf_df['year'] = year
+        eastern_conf_df.rename(columns={'Eastern Conference': 'team_name'}, inplace=True)
+        
+        western_conf_standings_table = soup.find('table', attrs={'id': 'divs_standings_W'})
+        western_conf_df = pd.read_html(western_conf_standings_table.prettify())[0]
+        western_conf_df['year'] = year
+        western_conf_df.rename(columns={'Western Conference': 'team_name'}, inplace=True)
+
+        dfs.append(eastern_conf_df)
+        dfs.append(western_conf_df)
+    
+    team_records = pd.concat(dfs)
+    processed_team_record_save_dir = team_record_save_dir / 'processed'
+    if not os.path.exists(processed_team_record_save_dir):
+        os.makedirs(processed_team_record_save_dir)
+    team_records.to_csv(processed_team_record_save_dir / 'team_records.csv')
