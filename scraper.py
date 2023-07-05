@@ -71,7 +71,7 @@ def parse_mvp_votings():
     processed_mvp_save_dir = mvp_save_dir / 'processed'
     if not os.path.exists(processed_mvp_save_dir):
         os.makedirs(processed_mvp_save_dir)
-    mvps.to_csv(processed_mvp_save_dir / 'mvps.csv')
+    mvps.to_csv(processed_mvp_save_dir / 'mvps.csv', index=False)
     
 def download_player_stats():
     """
@@ -130,7 +130,7 @@ def parse_player_stats():
     processed_pstats_save_dir = pstats_save_dir / 'processed'
     if not os.path.exists(processed_pstats_save_dir):
         os.makedirs(processed_pstats_save_dir)
-    player_stats.to_csv(processed_pstats_save_dir/ 'player_stats.csv')
+    player_stats.to_csv(processed_pstats_save_dir/ 'player_stats.csv', index=False)
 
 
 def download_team_records():
@@ -187,4 +187,4 @@ def parse_team_records():
     processed_team_record_save_dir = team_record_save_dir / 'processed'
     if not os.path.exists(processed_team_record_save_dir):
         os.makedirs(processed_team_record_save_dir)
-    team_records.to_csv(processed_team_record_save_dir / 'team_records.csv')
+    team_records.to_csv(processed_team_record_save_dir / 'team_records.csv', index=False)

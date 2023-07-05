@@ -25,7 +25,7 @@ def main():
     team_record_data = input('Do you want to download team record data? (y/n): ')
     while team_record_data.lower() != 'y' and team_record_data.lower() != 'n':
         team_record_data = input('Invalid input. Please enter (y/n): ')
-    if team_record_data.lower() != 'y':
+    if team_record_data.lower() == 'y':
         download_team_records()
         parse_team_records()
     
