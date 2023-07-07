@@ -1,4 +1,5 @@
 import requests
+import platform
 import os
 import time
 from pathlib import Path
@@ -81,8 +82,12 @@ def download_player_stats():
 
     Actions: Downloads HTML data of individual player stats from 1991 to 2023 locally
     """
-    # Starting selenium driver with chrome browser
-    driver = webdriver.Chrome()
+    # Starting selenium driver with Safari (only on OSX)
+    # Utilize Chrome for all others...
+    if platform.system() == 'Windows':
+        driver = webdriver.Chrome()
+    else:
+        driver = webdriver.Safari()
     raw_pstats_save_dir = pstats_save_dir / 'raw'
     if not os.path.exists(raw_pstats_save_dir):
         os.makedirs(raw_pstats_save_dir)

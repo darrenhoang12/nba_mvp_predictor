@@ -2,19 +2,19 @@ import os
 import pandas as pd
 from pathlib import Path
 
-mvp_votings_save_path = Path('data') / 'mvp_votings' / 'processed'
-player_stats_path = Path('data') / 'player_stats' / 'processed'
-team_record_save_path = Path('data') / 'team_records' / 'processed'
+mvp_votings_save_path = Path('data') / 'mvp_votings' / 'processed' / 'mvps.csv'
+player_stats_save_path = Path('data') / 'player_stats' / 'processed' / 'player_stats.csv'
+team_record_save_path = Path('data') / 'team_records' / 'processed' / 'team_records.csv'
 merged_save_path = Path('data') / 'merged'
 
-def merge_pstats_team_records():
+def merge_data():
     """
     Does minimal cleaning of player stats and team records data and merges them
     """
     
     # Adds column to team_records dataframe that indicates if the team made the playoffs
     # Removes symbols from the team_name such as * or the placement standings of the team
-    team_records = pd.read_csv(team_record_save_path / 'team_records.csv')
+    team_records = pd.read_csv(team_record_save_path)
     team_records['playoffs'] = False
     for idx, team_name in enumerate(team_records['team_name']):
         if '*' in team_name:
@@ -28,7 +28,7 @@ def merge_pstats_team_records():
     # Replaces CHO with CHH (both team abbreviations represent the Charlottle Hornets, just in different years)
     # Removes players with TOT (Total) meaning they have been traded during that season.
     #   *Historically, all players who have been traded in the middle of the season have never won MVP
-    player_stats = pd.read_csv(player_stats_path / 'player_stats.csv')
+    player_stats = pd.read_csv(player_stats_save_path)
     player_stats['Tm'].replace('CHO', 'CHH', inplace=True)
     player_stats = player_stats[player_stats.Tm != 'TOT']
     
@@ -50,8 +50,15 @@ def merge_pstats_team_records():
     team_records['team_name'] = cleaned_team_record_names
     
     # Merge together the team_records and player_stats
-    merged_df = player_stats.merge(team_records, left_on=['Tm', 'year'], right_on=['team_name', 'year'])
+    pstats_and_team_records = player_stats.merge(team_records, left_on=['Tm', 'year'], right_on=['team_name', 'year'])
 
+    # Merge the MVP votings data into team_records and player_stats
+    mvp_votings = pd.read_csv(mvp_votings_save_path)
+    merged_df = pd.merge(pstats_and_team_records,
+                         mvp_votings[['Player', 'year', 'Share', 'WS/48', 'Rank', 'First']],
+                         on=['Player', 'year'],
+                         how='left')
+    
     if not os.path.exists(merged_save_path):
         os.makedirs(merged_save_path)
     merged_df.to_csv(merged_save_path / 'uncleaned_merged.csv', index=False)
@@ -96,8 +103,17 @@ def clean_merged_df():
     # Dropping low-information columns
     merged_df.drop(columns=['Rk', 'playoffs', 'team_name'], inplace=True)
 
+    merged_df.rename(columns={'Share': 'mvp_share', 'Rank': 'mvp_rank', 'First': 'first_place_votes'}, inplace=True)
+    merged_df.columns = merged_df.columns.str.lower()
+    
+    # Filling columns that have NaN values with '0'
+    #   - 3p%: Some players (Big men) do not shoot 3 pointers
+    #   - mvp_share: Number of received MVP votes / Number of total MVP Votes
+    #   - mvp_rank: final MVP rankings
+    #   - first_place_votes: number of first place votes
+    merged_df.fillna(0, inplace=True)
 
     merged_df.to_csv(merged_save_path / 'player_data.csv', index=False)
 
-merge_pstats_team_records()
+merge_data()
 clean_merged_df()
