@@ -10,8 +10,8 @@ def main():
     metrics_df = pd.DataFrame()
 
     metrics_df = SVM_model(player_data, metrics_df, seasons_to_test)
-
-    print(metrics_df)
+    max_idx = metrics_df['RMSE'].idxmax()
+    print(metrics_df.iloc[max_idx])
 
 
 

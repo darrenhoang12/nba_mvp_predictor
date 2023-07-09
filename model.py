@@ -60,48 +60,35 @@ def SVM_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
         train = data[data['year'] != test_year]
         test = data[data['year'] == test_year]
 
-        X_tr = train.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year'])
+        X_tr = train.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player', 'pos', 'tm'])
         y_tr = train['mvp_share']
 
-        X_te = test.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year'])
+        X_te = test.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player', 'pos', 'tm'])
         y_te = test['mvp_share']
 
         scaler = StandardScaler()
-        X_tr_num = X_tr.select_dtypes(exclude=['object'])
-        X_te_num = X_te.select_dtypes(exclude=['object'])
+        X_tr = scaler.fit_transform(X_tr)
+        X_te = scaler.transform(X_te)
 
-        X_tr[X_tr_num.columns] = scaler.fit_transform(X_tr_num)
-        X_te[X_te_num.columns] = scaler.transform(X_te_num)
-
-        encoder = LabelEncoder()
-        X_tr_cat = X_tr.select_dtypes(include=['object'])
-        categorical_cols = X_tr_cat.columns
-        for col in categorical_cols:
-            X_tr[col] = encoder.fit_transform(X_tr[col])
-            X_te[col] = encoder.fit_transform(X_te[col])
-
-        param_grid = {'C': [0.001,0.01,0.1,0.5,1],
+        param_grid = {'C': [0.001,0.01,0.1,0.5,1,2,5],
                       'kernel': ['linear','rbf'],
                       'gamma': ['scale','auto'],
                       'degree': [2,3,4],
                       'epsilon': [0.1,0.5,1]
                       }
-        
+
         svr_model = SVR()
-        grid = GridSearchCV(svr_model, param_grid, verbose=10)
+        grid = GridSearchCV(svr_model, param_grid)
         grid.fit(X_tr, y_tr)
-
-        print(grid.best_params_)
-
         model = SVR(**grid.best_params_)
         model.fit(X_tr, y_tr)
+        y_pred = model.predict(X_te)
+
+        print(y_te)
+        print(y_tr)
+        metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'SVR', years_to_test)
 
         with open(model_path / f'SVM_{years_to_test}.dat', 'wb') as f:
            pickle.dump(model, f)
-
-        y_pred = model.predict(X_te)
-
-        metrics_df = get_metrics(y_te, y_pred, metrics_df, 'SVR', test_year)
-
     
     return metrics_df
