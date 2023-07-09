@@ -1,34 +1,19 @@
-from scraper import *
+import pandas as pd
 from model import *
+from pathlib import Path
 
 def main():
-    """
-    Scrape from Basketball Reference Database:
-        MVP Voting Data
-        Individual Player Statistics
-        Team Records
-    """
-    MVP_data = input('Do you want to download MVP voting data? (y/n): ')
-    while MVP_data.lower() != 'y' and MVP_data.lower() != 'n':
-        MVP_data = input('Invalid input. Please enter (y/n): ')
-    if MVP_data.lower() == 'y':
-        download_mvp_votings()
-        parse_mvp_votings()
-    
-    pstats_data = input('Do you want to download player stats data? (y/n): ')
-    while pstats_data.lower() != 'y' and pstats_data.lower() != 'n':
-        pstats_data = input('Invalid input. Please enter (y/n): ')
-    if pstats_data.lower() == 'y':
-        download_player_stats()
-        parse_player_stats()
+    # Testing 2023
+    player_data = pd.read_csv(Path('data') / 'merged' / 'player_data.csv')
 
-    team_record_data = input('Do you want to download team record data? (y/n): ')
-    while team_record_data.lower() != 'y' and team_record_data.lower() != 'n':
-        team_record_data = input('Invalid input. Please enter (y/n): ')
-    if team_record_data.lower() == 'y':
-        download_team_records()
-        parse_team_records()
-    
+    seasons_to_test = [2023]
+    metrics_df = pd.DataFrame()
+
+    metrics_df = SVM_model(player_data, metrics_df, seasons_to_test)
+
+    print(metrics_df)
+
+
 
 if __name__ == '__main__':
     main()
