@@ -16,14 +16,14 @@ def merge_data():
     # Removes symbols from the team_name such as * or the placement standings of the team
     team_records = pd.read_csv(team_record_save_path)
     team_records['playoffs'] = False
-    for idx, team_name in enumerate(team_records['team_name']):
+    for idx, team_name in enumerate(team_records['Tm']):
         if '*' in team_name:
             team_records.at[idx, 'playoffs'] = True
         parenthesis_idx = team_name.find('(')
         if parenthesis_idx != -1:
             team_name = team_name[:parenthesis_idx]
         team_name = team_name.replace('*', '').rstrip()
-        team_records.at[idx, 'team_name'] = team_name
+        team_records.at[idx, 'Tm'] = team_name
 
     # Replaces CHO with CHH (both team abbreviations represent the Charlottle Hornets, just in different years)
     # Removes players with TOT (Total) meaning they have been traded during that season.
@@ -33,7 +33,7 @@ def merge_data():
     player_stats = player_stats[player_stats.Tm != 'TOT']
     
     # Creates mapping for the full name of the team and the abbreviations. We will be using the abbreviations
-    team_names = sorted(team_records['team_name'].unique())
+    team_names = sorted(team_records['Tm'].unique())
     team_abbreviations = sorted(player_stats['Tm'].unique())
     
     # Some of the sorted abbreviations do not match up with the full team names, so we fix it here
@@ -45,12 +45,15 @@ def merge_data():
 
     # Replaces the team_records team names with the abbreviations
     cleaned_team_record_names = []
-    for team_name in team_records['team_name']:
+    for team_name in team_records['Tm']:
         cleaned_team_record_names.append(team_name_map[team_name])
-    team_records['team_name'] = cleaned_team_record_names
+    team_records['Tm'] = cleaned_team_record_names
     
     # Merge together the team_records and player_stats
-    pstats_and_team_records = player_stats.merge(team_records, left_on=['Tm', 'year'], right_on=['team_name', 'year'])
+    pstats_and_team_records = pd.merge(player_stats,
+                                       team_records[['Tm', 'year', 'W/L%', 'playoffs']],
+                                       on=['Tm', 'year'],
+                                       how='left')
 
     # Merge the MVP votings data into team_records and player_stats
     mvp_votings = pd.read_csv(mvp_votings_save_path)
@@ -97,11 +100,9 @@ def clean_merged_df():
 
     # Replacing "null" values to keep things consistent
     merged_df['Player'] = player_names
-    merged_df['GB'].replace('—', '0', inplace=True)
-    merged_df['GB'] = pd.to_numeric(merged_df['GB'])
 
     # Dropping low-information columns
-    merged_df.drop(columns=['Rk', 'playoffs', 'team_name'], inplace=True)
+    merged_df.drop(columns=['Rk', 'playoffs', 'Tm', 'Pos'], inplace=True)
 
     merged_df.rename(columns={'Share': 'mvp_share', 'Rank': 'mvp_rank', 'First': 'first_place_votes'}, inplace=True)
     merged_df.columns = merged_df.columns.str.lower()
@@ -112,8 +113,9 @@ def clean_merged_df():
     #   - mvp_rank: final MVP rankings
     #   - first_place_votes: number of first place votes
     merged_df.fillna(0, inplace=True)
-
+    print(merged_df)
     merged_df.to_csv(merged_save_path / 'player_data.csv', index=False)
+
 
 merge_data()
 clean_merged_df()

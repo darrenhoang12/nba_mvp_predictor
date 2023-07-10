@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import pickle 
+import pickle
+
+import matplotlib.pyplot as plt
 
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
@@ -55,15 +57,14 @@ def SVM_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
         metrics_df: the overall metrics dataframe for all the models so far, including the metrics 
                     for each year in years_to_test
     """
-    num_seasons = 1
     for test_year in years_to_test:
         train = data[data['year'] != test_year]
         test = data[data['year'] == test_year]
 
-        X_tr = train.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player', 'pos', 'tm'])
+        X_tr = train.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
         y_tr = train['mvp_share']
 
-        X_te = test.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player', 'pos', 'tm'])
+        X_te = test.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
         y_te = test['mvp_share']
 
         scaler = StandardScaler()
@@ -84,9 +85,12 @@ def SVM_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
         model.fit(X_tr, y_tr)
         y_pred = model.predict(X_te)
 
-        print(y_te)
-        print(y_tr)
-        metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'SVR', years_to_test)
+        plt.scatter(list(range(len(y_pred))), y_pred, label='predicted')
+        plt.scatter(list(range(len(y_te))), y_te, label='actual')
+        plt.legend()
+        plt.show()
+
+        metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'SVR', test_year)
 
         with open(model_path / f'SVM_{years_to_test}.dat', 'wb') as f:
            pickle.dump(model, f)

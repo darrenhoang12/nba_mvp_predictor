@@ -178,12 +178,12 @@ def parse_team_records():
         eastern_conf_standings_table = soup.find('table', attrs={'id': 'divs_standings_E'})
         eastern_conf_df = pd.read_html(eastern_conf_standings_table.prettify())[0]
         eastern_conf_df['year'] = year
-        eastern_conf_df.rename(columns={'Eastern Conference': 'team_name'}, inplace=True)
+        eastern_conf_df.rename(columns={'Eastern Conference': 'Tm'}, inplace=True)
         
         western_conf_standings_table = soup.find('table', attrs={'id': 'divs_standings_W'})
         western_conf_df = pd.read_html(western_conf_standings_table.prettify())[0]
         western_conf_df['year'] = year
-        western_conf_df.rename(columns={'Western Conference': 'team_name'}, inplace=True)
+        western_conf_df.rename(columns={'Western Conference': 'Tm'}, inplace=True)
 
         dfs.append(eastern_conf_df)
         dfs.append(western_conf_df)
