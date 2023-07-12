@@ -17,6 +17,9 @@ def download_data():
 
     download_team_records()
     parse_team_records()
+
+    download_advanced_stats()
+    parse_advanced_stats()
     
 
 if __name__ == '__main__':

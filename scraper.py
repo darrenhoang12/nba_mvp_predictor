@@ -15,6 +15,7 @@ years = range(1991, 2024)
 mvp_save_dir = Path('data') / 'mvp_votings'
 pstats_save_dir = Path('data') / 'player_stats'
 team_record_save_dir = Path('data') / 'team_records'
+advanced_stats_dir = Path('data') / 'advanced_stats'
 
 
 def download_mvp_votings():
@@ -193,3 +194,42 @@ def parse_team_records():
     if not os.path.exists(processed_team_record_save_dir):
         os.makedirs(processed_team_record_save_dir)
     team_records.to_csv(processed_team_record_save_dir / 'team_records.csv', index=False)
+
+def download_advanced_stats():
+    advanced_raw_dir = advanced_stats_dir / 'raw'
+    if not os.path.exists(advanced_raw_dir):
+        os.makedirs(advanced_raw_dir)
+
+    for year in years:
+        print(f'Downloading advanced stats from {year}')
+        url = f'https://www.basketball-reference.com/leagues/NBA_{year}_advanced.html'
+
+        r = requests.get(url)
+        web_content = r.content.decode('utf-8')
+        save_file = advanced_raw_dir / f'adv_stats_{year}.html'
+        with open(save_file, 'w', encoding='utf-8') as f:
+            f.write(web_content)
+        time.sleep(crawl_delay)
+
+def parse_advanced_stats():
+    dfs = []
+    for year in years:
+        print(f'Parsing advanced stats from {year}')
+        file = advanced_stats_dir / 'raw' / f'adv_stats_{year}.html'
+        content = open(file, 'r', encoding='utf-8')
+
+        soup = BeautifulSoup(content, 'html.parser')
+        table = soup.find('table')
+        thead = table.find_all('tr', attrs={'class': 'thead'})
+        for t in thead:
+            t.extract()
+        df = pd.read_html(table.prettify())[0]
+        df.drop(columns=['Unnamed: 24', 'Unnamed: 19'], inplace=True)
+        df['year'] = year
+        dfs.append(df)
+    
+    processed_save_file = advanced_stats_dir / 'processed'
+    if not os.path.exists(processed_save_file):
+        os.makedirs(processed_save_file)
+    adv_stats = pd.concat(dfs)
+    adv_stats.to_csv(processed_save_file / 'adv_stats.csv', index=False)

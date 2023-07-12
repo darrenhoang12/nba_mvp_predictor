@@ -72,7 +72,7 @@ def SVM_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
         X_te = scaler.transform(X_te)
 
         param_grid = {'C': [0.001,0.01,0.1,0.5,1,2,5],
-                      'kernel': ['linear','rbf'],
+                      'kernel': ['linear','rbf', 'poly'],
                       'gamma': ['scale','auto'],
                       'degree': [2,3,4],
                       'epsilon': [0.1,0.5,1]
@@ -84,6 +84,8 @@ def SVM_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
         model = SVR(**grid.best_params_)
         model.fit(X_tr, y_tr)
         y_pred = model.predict(X_te)
+
+        print(grid.best_params_)
 
         plt.scatter(list(range(len(y_pred))), y_pred, label='predicted')
         plt.scatter(list(range(len(y_te))), y_te, label='actual')

@@ -5,6 +5,7 @@ from pathlib import Path
 mvp_votings_save_path = Path('data') / 'mvp_votings' / 'processed' / 'mvps.csv'
 player_stats_save_path = Path('data') / 'player_stats' / 'processed' / 'player_stats.csv'
 team_record_save_path = Path('data') / 'team_records' / 'processed' / 'team_records.csv'
+adv_stats_save_path = Path('data') / 'advanced_stats' / 'processed' / 'adv_stats.csv'
 merged_save_path = Path('data') / 'merged'
 
 def merge_data():
@@ -48,19 +49,28 @@ def merge_data():
     for team_name in team_records['Tm']:
         cleaned_team_record_names.append(team_name_map[team_name])
     team_records['Tm'] = cleaned_team_record_names
+
+    adv_stats = pd.read_csv(adv_stats_save_path)
+    adv_stats = adv_stats.drop(columns=['Rk', 'Pos', 'Age', 'Tm', 'G', 'MP'])
     
     # Merge together the team_records and player_stats
     pstats_and_team_records = pd.merge(player_stats,
                                        team_records[['Tm', 'year', 'W/L%', 'playoffs']],
                                        on=['Tm', 'year'],
                                        how='left')
+    
+    adv_stats_merged = pd.merge(pstats_and_team_records,
+                                adv_stats,
+                                on=['Player', 'year'],
+                                how='left')
 
     # Merge the MVP votings data into team_records and player_stats
     mvp_votings = pd.read_csv(mvp_votings_save_path)
-    merged_df = pd.merge(pstats_and_team_records,
-                         mvp_votings[['Player', 'year', 'Share', 'WS/48', 'Rank', 'First']],
+    merged_df = pd.merge(adv_stats_merged,
+                         mvp_votings[['Player', 'year', 'Share', 'Rank', 'First']],
                          on=['Player', 'year'],
                          how='left')
+    
     
     if not os.path.exists(merged_save_path):
         os.makedirs(merged_save_path)
@@ -75,6 +85,7 @@ def clean_merged_df():
         Assists (AST)        | 1.3
         FG%                  | 0.378
         Min Played (MP)      | 30.4
+        PER                  | 18.1
     
     Other criteria:
         There has only been one MVP that did not make the playoffs
@@ -90,6 +101,7 @@ def clean_merged_df():
     merged_df = merged_df[merged_df.AST > 1.3]
     merged_df = merged_df[merged_df['FG%'] > 0.378]
     merged_df = merged_df[merged_df.MP > 30.4]
+    merged_df = merged_df[merged_df.PER > 18.1]
 
     # Player name cleanup
     player_names = []
@@ -113,7 +125,7 @@ def clean_merged_df():
     #   - mvp_rank: final MVP rankings
     #   - first_place_votes: number of first place votes
     merged_df.fillna(0, inplace=True)
-    print(merged_df)
+    print(merged_df.info())
     merged_df.to_csv(merged_save_path / 'player_data.csv', index=False)
 
 
