@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 
 # Basketball Reference crawl delay is 3 seconds
 crawl_delay = 3
-years = range(1991, 2024)
+years = range(1998, 2024)
 mvp_save_dir = Path('data') / 'mvp_votings'
 pstats_save_dir = Path('data') / 'player_stats'
 team_record_save_dir = Path('data') / 'team_records'
@@ -233,3 +233,4 @@ def parse_advanced_stats():
         os.makedirs(processed_save_file)
     adv_stats = pd.concat(dfs)
     adv_stats.to_csv(processed_save_file / 'adv_stats.csv', index=False)
+

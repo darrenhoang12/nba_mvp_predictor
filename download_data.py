@@ -1,5 +1,6 @@
 from scraper import *
 from model import *
+from data_treatment import *
 
 def download_data():
     """
@@ -20,7 +21,11 @@ def download_data():
 
     download_advanced_stats()
     parse_advanced_stats()
+
+
     
 
 if __name__ == '__main__':
     download_data()
+    merge_data()
+    clean_merged_df()
