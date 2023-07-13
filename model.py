@@ -44,16 +44,28 @@ def get_metrics(y_test: pd.Series, y_pred: np.array, metrics_df: pd.DataFrame, m
     return metrics_df
 
 def display_mvp_race_results(actual: pd.Series, predicted: np.array, model: str, player_names: list):
-    display_df = pd.DataFrame()
+    display_df_actual = pd.DataFrame()
+    display_df_pred = pd.DataFrame()
     actual = list(actual)
     for i in range(len(actual)):
-        mvp_shares = {'Player': [player_names[i]],
-                      'MVP Share (Actual)': [actual[i]],
-                      f'MVP Share ({model})': [predicted[i]]
-                     }
-        curr_race = pd.DataFrame(data=mvp_shares)
-        display_df = pd.concat([display_df, curr_race])
-    print(display_df)
+        mvp_shares_actual = {'Player (Actual)': [player_names[i]],
+                             'MVP Share (Actual)': [actual[i]],
+                            }
+        mvp_shares_pred = {f'Player ({model})': [player_names[i]],
+                           f'MVP Share ({model})': [predicted[i]]
+                           }
+        
+        curr_race_actual = pd.DataFrame(data=mvp_shares_actual)
+        display_df_actual = pd.concat([display_df_actual, curr_race_actual])
+
+        curr_race_pred = pd.DataFrame(data=mvp_shares_pred)
+        display_df_pred = pd.concat([display_df_pred, curr_race_pred])
+
+    display_df_actual = display_df_actual.sort_values('MVP Share (Actual)', ascending=False)
+    display_df_pred = display_df_pred.sort_values(f'MVP Share ({model})', ascending=False)
+    
+    display_df = pd.concat([display_df_actual.head(3), display_df_pred.head(3)], axis=1)
+    print(display_df.head(3))
 
 def svm_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list):
     """

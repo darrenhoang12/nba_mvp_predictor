@@ -38,10 +38,12 @@ def merge_data():
     team_abbreviations = sorted(player_stats['Tm'].unique())
     
     # Some of the sorted abbreviations do not match up with the full team names, so we fix it here
-    nok_index, nop_index = team_abbreviations.index('NOK'), team_abbreviations.index('NOP')
-    team_abbreviations[nop_index], team_abbreviations[nok_index] = team_abbreviations[nok_index], team_abbreviations[nop_index]
-    wsb_index, was_index = team_abbreviations.index('WSB'), team_abbreviations.index('WAS')
-    team_abbreviations[wsb_index], team_abbreviations[was_index] = team_abbreviations[was_index], team_abbreviations[wsb_index]
+    if 'NOK' in team_abbreviations and 'NOP' in team_abbreviations:
+        nok_index, nop_index = team_abbreviations.index('NOK'), team_abbreviations.index('NOP')
+        team_abbreviations[nop_index], team_abbreviations[nok_index] = team_abbreviations[nok_index], team_abbreviations[nop_index]
+    if 'WSB' in team_abbreviations and 'WAS' in team_abbreviations:
+        wsb_index, was_index = team_abbreviations.index('WSB'), team_abbreviations.index('WAS')
+        team_abbreviations[wsb_index], team_abbreviations[was_index] = team_abbreviations[was_index], team_abbreviations[wsb_index]
     team_name_map = dict(zip(team_names, team_abbreviations))
 
     # Replaces the team_records team names with the abbreviations
@@ -93,15 +95,14 @@ def clean_merged_df():
 
     """
     merged_df = pd.read_csv(merged_save_path / 'uncleaned_merged.csv')
-    merged_df = merged_df[merged_df.playoffs == True]
-    merged_df = merged_df[merged_df.G > 49]
-    merged_df = merged_df[merged_df.PTS > 13.8]
-    merged_df = merged_df[merged_df.FGA > 10.9]
-    merged_df = merged_df[merged_df.TRB > 3.3]
-    merged_df = merged_df[merged_df.AST > 1.3]
-    merged_df = merged_df[merged_df['FG%'] > 0.378]
-    merged_df = merged_df[merged_df.MP > 30.4]
-    merged_df = merged_df[merged_df.PER > 18.1]
+    merged_df = merged_df[merged_df.G >= 49]
+    merged_df = merged_df[merged_df.PTS >= 13.8]
+    merged_df = merged_df[merged_df.FGA >= 10.9]
+    merged_df = merged_df[merged_df.TRB >= 3.3]
+    merged_df = merged_df[merged_df.AST >= 1.3]
+    merged_df = merged_df[merged_df['FG%'] >= 0.378]
+    merged_df = merged_df[merged_df.MP >= 30.4]
+    merged_df = merged_df[merged_df.PER >= 18.1]
 
     # Player name cleanup
     player_names = []
@@ -127,7 +128,3 @@ def clean_merged_df():
     merged_df.fillna(0, inplace=True)
     print(merged_df.info())
     merged_df.to_csv(merged_save_path / 'player_data.csv', index=False)
-
-
-merge_data()
-clean_merged_df()

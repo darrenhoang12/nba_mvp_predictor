@@ -21,8 +21,6 @@ def download_data():
 
     download_advanced_stats()
     parse_advanced_stats()
-
-
     
 
 if __name__ == '__main__':

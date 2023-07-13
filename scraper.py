@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 
 # Basketball Reference crawl delay is 3 seconds
 crawl_delay = 3
-years = range(1998, 2024)
+years = range(2000, 2024)
 mvp_save_dir = Path('data') / 'mvp_votings'
 pstats_save_dir = Path('data') / 'player_stats'
 team_record_save_dir = Path('data') / 'team_records'
@@ -20,7 +20,7 @@ advanced_stats_dir = Path('data') / 'advanced_stats'
 
 def download_mvp_votings():
     """
-    Goes through range of years 1991 to 2023 on the MVP Votings page on Basketball Reference
+    Goes through range of years on the MVP Votings page on Basketball Reference
     and downloads the HTML data locally
 
     Args: None
@@ -31,7 +31,7 @@ def download_mvp_votings():
     if not os.path.exists(raw_mvp_save_dir):
         os.makedirs(raw_mvp_save_dir)
 
-    # Taking in years 1991 to 2023, as 2023 year has just finished
+    # Taking in range of years
     # base url: https://www.basketball-reference.com/awards/awards_{year}.html
     # where {year} is the year the NBA MVP was awarded
     for year in years:
@@ -50,7 +50,7 @@ def parse_mvp_votings():
 
     Args: None
 
-    Actions: Combines MVP table data from 1991 to 2023 and stores it
+    Actions: Combines MVP table data and stores it
     """
     dfs = []
     for year in years:
@@ -81,7 +81,7 @@ def download_player_stats():
 
     Args: None
 
-    Actions: Downloads HTML data of individual player stats from 1991 to 2023 locally
+    Actions: Downloads HTML data of individual player stats locally
     """
     # Starting selenium driver with Safari (only on OSX)
     # Utilize Chrome for all others...
@@ -196,6 +196,13 @@ def parse_team_records():
     team_records.to_csv(processed_team_record_save_dir / 'team_records.csv', index=False)
 
 def download_advanced_stats():
+    """
+    Downloads advanced stats, such as player efficiency rating (PER) and winshare (WS)
+
+    Args: None
+
+    Actions: Downloads advanced stats to local
+    """
     advanced_raw_dir = advanced_stats_dir / 'raw'
     if not os.path.exists(advanced_raw_dir):
         os.makedirs(advanced_raw_dir)
@@ -212,6 +219,13 @@ def download_advanced_stats():
         time.sleep(crawl_delay)
 
 def parse_advanced_stats():
+    """
+    Parses advanced stats from raw html data
+
+    Args: None
+
+    Action: Scrapes table data from raw html data and stores it locally
+    """
     dfs = []
     for year in years:
         print(f'Parsing advanced stats from {year}')
