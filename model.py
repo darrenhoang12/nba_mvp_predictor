@@ -98,3 +98,92 @@ def SVM_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
            pickle.dump(model, f)
     
     return metrics_df
+
+
+def random_forest_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list):
+    """
+    """
+    for test_year in years_to_test:
+        train = data[data['year'] != test_year]
+        test = data[data['year'] == test_year]
+
+        X_tr = train.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
+        y_tr = train['mvp_share']
+
+        X_te = test.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
+        y_te = test['mvp_share']
+
+        scaler = StandardScaler()
+        X_tr = scaler.fit_transform(X_tr)
+        X_te = scaler.transform(X_te)
+
+        param_grid = {'n_estimators': [15,25,50,64,100,150,200],
+                      'max_features': [2,3,4,5],
+                      'bootstrap': [True,False],
+                      'oob_score': [True]
+                     }
+        
+        rfc = RandomForestRegressor()
+        grid = GridSearchCV(rfc, param_grid)
+        grid.fit(X_tr, y_tr)
+        model = RandomForestRegressor(**grid.best_params_)
+        model.fit(X_tr, y_tr)
+        y_pred = model.predict(X_te)
+
+        print(grid.best_params_)
+
+        plt.scatter(list(range(len(y_pred))), y_pred, label='predicted')
+        plt.scatter(list(range(len(y_te))), y_te, label='actual')
+        plt.legend()
+        plt.show()
+
+        metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'Random Forest', test_year)
+
+        with open(model_path / f'random_forest_{years_to_test}.dat', 'wb') as f:
+           pickle.dump(model, f)
+    
+    return metrics_df
+
+def elastic_net_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list):
+    """
+    """
+    for test_year in years_to_test:
+        train = data[data['year'] != test_year]
+        test = data[data['year'] == test_year]
+
+        X_tr = train.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
+        y_tr = train['mvp_share']
+
+        X_te = test.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
+        y_te = test['mvp_share']
+
+        scaler = StandardScaler()
+        X_tr = scaler.fit_transform(X_tr)
+        X_te = scaler.transform(X_te)
+
+        param_grid = {'alpha':[0.01,0.1,1.,5.,10.,50.,100.],
+                      'l1_ratio':[0.01,0.1,0.5,0.7,0.95,0.99,1]
+                      }
+
+        en_model = ElasticNet()
+        grid = GridSearchCV(en_model, param_grid)
+        grid.fit(X_tr, y_tr)
+        model = ElasticNet(**grid.best_params_)
+        model.fit(X_tr, y_tr)
+        y_pred = model.predict(X_te)
+
+        print(grid.best_params_)
+
+        plt.scatter(list(range(len(y_pred))), y_pred, label='predicted')
+        plt.scatter(list(range(len(y_te))), y_te, label='actual')
+        plt.legend()
+        plt.show()
+
+        metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'ElasticNet', test_year)
+
+        with open(model_path / f'elastic_net_{years_to_test}.dat', 'wb') as f:
+           pickle.dump(model, f)
+    
+    return metrics_df
+
+        
