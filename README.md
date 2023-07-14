@@ -59,11 +59,22 @@ The following models were selected from sklearn:
 * AdaBoost Regression (ADA)
 * GradientBoost Regression (GRAD)
 
-### Predicting and verifying the 2023 MVP
-
+To verify and check the predictive power of our regression models, we will be using the Root Mean Squared Error (RMSE) and R2 metrics.
 
 ### Predicting and verifying the 2022 MVP
+After training each model on data where we leave out the 2021-2022 season, we get the following metrics.
+![Alt text](images/2022_metrics.png)
 ![Alt text](images/2022_pred.png)
+In almost every model except ElasticNet, we accurately predicted that the NBA MVP is Nikola Jokic. More interestingly, we can also see that our model consistently predicts Giannis Antetokounmpo to be higher in the MVP race than Joel Embiid.
+
+### Predicting and verifying the 2023 MVP
+After training each model on data where we leave out the 2022-2023 season, we get the following metrics.
+![Alt text](2023_metrics.png)
+![Alt text](images/2023_pred.png)
+Just like the 2022 predictions, our models predict that Nikola Jokic wins the MVP race for 2023. However, this is incorrect, as we can see that Joel Embiid wins the MVP race by a landslide. Instead, Joel Embiid is mostly predicted to be at second place in the MVP race while Giannis moves down to third.
+
+
+
 
 
 
