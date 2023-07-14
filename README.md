@@ -15,6 +15,16 @@ This project is done with Python 3.9+ with the following additionally downloaded
 
 These packages can be downloaded in ~/env/requirements.txt for pip or ~/env/nba.yml to create a conda environment.
 
+## Instructions
+To download and preprocess the data:
+* `python download_data.py`
+
+To train the models:
+* `python main.py`
+
+To see the visualizations and rerun saved models:
+* See `visualizations.ipynb`
+
 ## Scraping Data
 We will focus on three specific types of pages when scraping:
 * The information on the MVP race of each season
