@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import pickle
+import os
 
 import matplotlib.pyplot as plt
 
@@ -44,6 +45,17 @@ def get_metrics(y_test: pd.Series, y_pred: np.array, metrics_df: pd.DataFrame, m
     return metrics_df
 
 def display_mvp_race_results(actual: pd.Series, predicted: np.array, model: str, player_names: list):
+    """
+    Displays the top 3 leaders in MVP Share vs the top 3 leaders in a given model
+
+    Args:
+        actual: actual results of MVP shares (same as y_te)
+        predicted: predicted results of MVP shares (same as y_pred)
+        model: model used to achieve the predicted results
+        player_names: list of player names matching up with 'actual' and 'predicted'
+    Returns:
+        None. Prints out results of top 3 leaders in MVP Share, actual vs predicted.
+    """
     display_df_actual = pd.DataFrame()
     display_df_pred = pd.DataFrame()
     actual = list(actual)
@@ -72,12 +84,16 @@ def svm_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
     Training a SVM regressor
     
     Args:
-        data: the cleaned player data found earlier
+        data: the cleaned player data
         metrics_df: the overall metrics dataframe for all the metrics found so far in each model
         years_to_test: a list of years to test against
     Returns:
         metrics_df: the overall metrics dataframe for all the models so far, including the metrics 
                     for each year in years_to_test
+    
+    ****
+    Graphs a actual vs predicted scatter plot, saves the model locally, and displays the top MVP Shares
+    ****
     """
     for test_year in years_to_test:
         train = data[data['year'] != test_year]
@@ -120,7 +136,7 @@ def svm_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
         metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'SVR', test_year)
         display_mvp_race_results(y_te, y_pred, 'SVR', player_names)
 
-        with open(model_path / f'SVM_{years_to_test}.dat', 'wb') as f:
+        with open(model_path / f'svm_{test_year}.dat', 'wb') as f:
            pickle.dump(model, f)
     
     return metrics_df
@@ -128,6 +144,19 @@ def svm_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list)
 
 def random_forest_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list):
     """
+    Training a Random Forest regressor
+    
+    Args:
+        data: the cleaned player data
+        metrics_df: the overall metrics dataframe for all the metrics found so far in each model
+        years_to_test: a list of years to test against
+    Returns:
+        metrics_df: the overall metrics dataframe for all the models so far, including the metrics 
+                    for each year in years_to_test
+    
+    ****
+    Graphs a actual vs predicted scatter plot, saves the model locally, and displays the top MVP Shares
+    ****
     """
     for test_year in years_to_test:
         train = data[data['year'] != test_year]
@@ -169,13 +198,26 @@ def random_forest_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_t
         metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'Random Forest', test_year)
         display_mvp_race_results(y_te, y_pred, 'Random Forest', player_names)
 
-        with open(model_path / f'random_forest_{years_to_test}.dat', 'wb') as f:
+        with open(model_path / f'randomforest_{test_year}.dat', 'wb') as f:
            pickle.dump(model, f)
     
     return metrics_df
 
 def elastic_net_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list):
     """
+    Training a Elastic Net regressor
+    
+    Args:
+        data: the cleaned player data
+        metrics_df: the overall metrics dataframe for all the metrics found so far in each model
+        years_to_test: a list of years to test against
+    Returns:
+        metrics_df: the overall metrics dataframe for all the models so far, including the metrics 
+                    for each year in years_to_test
+    
+    ****
+    Graphs a actual vs predicted scatter plot, saves the model locally, and displays the top MVP Shares
+    ****
     """
     for test_year in years_to_test:
         train = data[data['year'] != test_year]
@@ -214,13 +256,26 @@ def elastic_net_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_tes
 
         metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'ElasticNet', test_year)
         display_mvp_race_results(y_te, y_pred, 'ElasticNet', player_names)
-        with open(model_path / f'elastic_net_{years_to_test}.dat', 'wb') as f:
+        with open(model_path / f'elasticnet_{test_year}.dat', 'wb') as f:
            pickle.dump(model, f)
     
     return metrics_df
 
 def adaboost_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list):
     """
+    Training a AdaBoost regressor
+    
+    Args:
+        data: the cleaned player data
+        metrics_df: the overall metrics dataframe for all the metrics found so far in each model
+        years_to_test: a list of years to test against
+    Returns:
+        metrics_df: the overall metrics dataframe for all the models so far, including the metrics 
+                    for each year in years_to_test
+
+    ****
+    Graphs a actual vs predicted scatter plot, saves the model locally, and displays the top MVP Shares
+    ****
     """
     for test_year in years_to_test:
         train = data[data['year'] != test_year]
@@ -259,12 +314,26 @@ def adaboost_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: 
         metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'AdaBoost', test_year)
         display_mvp_race_results(y_te, y_pred, 'AdaBoost', player_names)
 
-        with open(model_path / f'adaboost_{years_to_test}.dat', 'wb') as f:
+        with open(model_path / f'adaboost_{test_year}.dat', 'wb') as f:
            pickle.dump(model, f)
     
     return metrics_df
 
 def gradientboost_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_test: list):
+    """
+    Training a GradientBoost regressor
+    
+    Args:
+        data: the cleaned player data
+        metrics_df: the overall metrics dataframe for all the metrics found so far in each model
+        years_to_test: a list of years to test against
+    Returns:
+        metrics_df: the overall metrics dataframe for all the models so far, including the metrics 
+                    for each year in years_to_test
+    ****
+    Graphs a actual vs predicted scatter plot, saves the model locally, and displays the top MVP Shares
+    ****
+    """
     for test_year in years_to_test:
         train = data[data['year'] != test_year]
         test = data[data['year'] == test_year]
@@ -302,7 +371,58 @@ def gradientboost_model(data: pd.DataFrame, metrics_df: pd.DataFrame, years_to_t
 
         metrics_df = get_metrics(y_te, y_pred,  metrics_df, 'GradientBoost', test_year)
         display_mvp_race_results(y_te, y_pred, 'GradientBoost', player_names)
-        with open(model_path / f'gradboost_{years_to_test}.dat', 'wb') as f:
+        with open(model_path / f'gradboost_{test_year}.dat', 'wb') as f:
            pickle.dump(model, f)
     
+    return metrics_df
+
+def load_model(data: pd.DataFrame, saved_model_paths: list, test_years: list):
+    """
+    Loads selected saved models and displays results
+
+    Args:
+        data: the cleaned player data
+        saved_model_paths: a list of model paths that you would like to be displayed from 'models/*.dat'
+        test_years: the years to be tested with each model
+    Returns:
+        metrics_df: A complete metrics df representing the selected models.
+    ****
+    This also displays the scatter plot and displays the top MVP Shares for each model as well
+    ****
+    """
+    metrics_df = pd.DataFrame()
+    for path in saved_model_paths:
+        if not os.path.exists(path):
+            print("Saved model does not exist") 
+            continue
+        
+        model_name = str(path).split('_')[0]
+        print(f'Loaded {path}')
+        loaded_model = pickle.load(open(path, 'rb'))
+        
+        for year in test_years:
+            train = data[data['year'] != year]
+            test = data[data['year'] == year]
+
+            player_names = list(test['player'])
+
+            X_tr = train.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
+
+            X_te = test.drop(columns=['mvp_share', 'mvp_rank', 'first_place_votes', 'year', 'player'])
+            y_te = test['mvp_share']
+
+            scaler = StandardScaler()
+            X_tr = scaler.fit_transform(X_tr)
+            X_te = scaler.transform(X_te)
+
+            y_pred = loaded_model.predict(X_te)
+
+            plt.scatter(list(range(len(y_pred))), y_pred, label='predicted')
+            plt.scatter(list(range(len(y_te))), y_te, label='actual')
+            plt.legend()
+            plt.title(model_name)
+            plt.show()
+
+            metrics_df = get_metrics(y_te, y_pred, metrics_df, model_name, year)
+            display_mvp_race_results(y_te, y_pred, model_name, player_names)
     return metrics_df

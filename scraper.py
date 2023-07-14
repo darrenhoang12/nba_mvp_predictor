@@ -5,7 +5,6 @@ import time
 from pathlib import Path
 from bs4 import BeautifulSoup
 import pandas as pd
-from io import StringIO
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -247,4 +246,3 @@ def parse_advanced_stats():
         os.makedirs(processed_save_file)
     adv_stats = pd.concat(dfs)
     adv_stats.to_csv(processed_save_file / 'adv_stats.csv', index=False)
-
