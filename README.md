@@ -44,10 +44,30 @@ There is a minimum requirement for each stat that a player has to reach in order
 * Assists: **1.3 AST** by Moses Malone
 * Field Goal Percentage: **37.8 FG%** by Bob Cousy
 * Minutes played: **30.4 MP** by Giannis Antetokounmpo
+* Player Efficiency Rating: **18.1** by Bob Cousy
 * One one player, Kareem Abdul Jabbar, in NBA history has won the MVP while not making the playoffs
+
+Using these minimums, we cut down the amount of players to 30 players per season.
 #
 ## Modeling
-TO-DO
+Now that our data is ready for machine learning, we can try to select various models to find a suitable regression model for our data.
+
+The following models were selected from sklearn:
+* Support Vector Regression
+* Random Forest Regression
+* ElasticNet
+* AdaBoost Regression
+* GradientBoost Regression
+
+### Predicting and verifying the 2023 MVP
+
+
+### Predicting and verifying the 2022 MVP
+
+
+
+
+
 
 
 
