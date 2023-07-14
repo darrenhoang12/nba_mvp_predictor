@@ -53,11 +53,11 @@ Using these minimums, we cut down the amount of players to 30 players per season
 Now that our data is ready for machine learning, we can try to select various models to find a suitable regression model for our data.
 
 The following models were selected from sklearn:
-* Support Vector Regression
-* Random Forest Regression
-* ElasticNet
-* AdaBoost Regression
-* GradientBoost Regression
+* Support Vector Regression (SVR)
+* Random Forest Regression (RF)
+* ElasticNet (EN)
+* AdaBoost Regression (ADA)
+* GradientBoost Regression (GRAD)
 
 ### Predicting and verifying the 2023 MVP
 
