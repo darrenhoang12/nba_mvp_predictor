@@ -63,7 +63,7 @@ The following models were selected from sklearn:
 
 
 ### Predicting and verifying the 2022 MVP
-
+![Alt text](images/2022_pred.png)
 
 
 
