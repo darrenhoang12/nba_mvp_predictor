@@ -91,7 +91,7 @@ In almost every model except ElasticNet, we accurately predicted that the NBA MV
 ### Predicting and verifying the 2023 MVP
 After training each model on data where we leave out the 2022-2023 season, we get the following metrics.
 
-![Alt text](2023_metrics.png)
+![Alt text](images/2023_metrics.png)
 
 We can see that the best performing model for predicting 2023 is AdaBoost with the highest R2 score and lower RMSE by a large margin.
 
